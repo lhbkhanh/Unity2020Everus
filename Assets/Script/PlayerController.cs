@@ -6,20 +6,32 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour
 {
     public float speed = 10.0f;
+    public float IdleTime = 1.0f;
+
 
     public Text countText;
     public Text winText;
 
     private Rigidbody rb;
     private int count;
+    private float playerIdleTime;
+    private Animator animator;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
         count = 0;
         countText.text = "Count: " + count.ToString();
         winText.text = "";
+        playerIdleTime = 0.0f;
+    }
+
+
+    private void FixedUpdate()
+    {
+
     }
 
     // Update is called once per frame
@@ -28,9 +40,20 @@ public class PlayerController : MonoBehaviour
         float moveHorizontal = Input.GetAxis("Horizontal");
         float moveVertical = Input.GetAxis("Vertical");
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
+        rb.AddForce(force: movement * speed, ForceMode.Impulse);
 
-        rb.AddForce(force: movement * speed);
-        
+
+        // float playerSpeed = rb.velocity.magnitude;
+        // if (playerSpeed == 0)
+        // {
+        //     playerIdleTime += Time.deltaTime;
+           
+        // }
+        // else
+        // {
+        //     playerIdleTime = 0.0f;            
+        // }
+        // animator.SetBool("isPlayerIdled", (playerIdleTime >= IdleTime));
     }
 
     private void OnTriggerEnter(Collider other)

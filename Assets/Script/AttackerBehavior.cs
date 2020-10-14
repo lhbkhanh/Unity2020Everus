@@ -14,9 +14,10 @@ public class AttackerBehavior : MonoBehaviour
     // private Area
     ////////////////////
     private Gameplay GP;
-    private float _StartTime, _speed;
-    private bool _isInit, _hasBall;
-    private Transform Target;
+    private float _DeactiveTime, _speed ;
+    private bool _isInit, _hasBall, _isActive;
+    private Transform tfmTarget;
+    private Animator _animator;
 
 
 
@@ -27,17 +28,23 @@ public class AttackerBehavior : MonoBehaviour
     // Start is called before the first frame update
     private void Awake()
     {
-        _StartTime = _speed = 0;
+        _DeactiveTime = _speed = 0.0f;
         _hasBall = false;
         _isInit = false;
+        _isActive = false;
+        _animator = GetComponent<Animator>();
         
-        _speed = AttDef.NormalSpeed;
+        _speed = AttDef.NormalSpeed; // debug
     }
     
-    public void Init(Gameplay gp, Transform target)
+    public void Init(Gameplay gp, Transform target, float timeDeactive)
     {
         GP = gp;
-        this.Target = target;
+        this.tfmTarget = target;
+        _isActive = false;
+        _DeactiveTime = -timeDeactive;
+        this.GetComponent<CapsuleCollider>().enabled = false;
+
         _isInit = true;
     }
 
@@ -45,21 +52,41 @@ public class AttackerBehavior : MonoBehaviour
     void Update()
     {
         if(!_isInit || GP == null) return;
-
-        
-        Move();
-        _StartTime += Time.deltaTime;
+        if(!_isActive)
+        {
+            _DeactiveTime += Time.deltaTime;
+            if(_DeactiveTime>=0)            
+            {
+                _isActive = true;
+                Active();
+            }
+        }
+        if(_isActive)
+            Move();
     }
 
     public void OnTriggerEnter(Collider other)
     {
         if(other.gameObject.CompareTag("Ball"))
         {
-            GameObject ball = other.gameObject;
-            ball.transform.LookAt(GP.Goal.transform);
-            transform.LookAt(GP.Goal.transform);
-            _hasBall = true;
-            GP.OnAttackersGetBall();
+            PickBall(other.gameObject);
+        }
+        
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ball"))
+        {
+            PickBall(collision.gameObject);
+        }
+
+        if(collision.gameObject.CompareTag("Wall"))
+        {
+           if(!_hasBall)
+           {
+               GP.DestroyAttacker(this);
+           }
         }
     }
     
@@ -70,7 +97,7 @@ public class AttackerBehavior : MonoBehaviour
 
     public void SetTarget(Transform target)
     {
-        Target = target;
+        tfmTarget = target;
     }
 
 
@@ -80,16 +107,40 @@ public class AttackerBehavior : MonoBehaviour
     private void Move()
     {
         Vector3 tarPos;
-        if(Target != null)
+        if(tfmTarget != null)
         {
-            tarPos = Target.position;
+            tarPos = tfmTarget.position;
+            tarPos.y = 0.5f;
             transform.position = Vector3.MoveTowards(transform.position, tarPos, _speed * Time.deltaTime);
 
         }
         else
         {
-            tarPos = new Vector3(transform.position.x, 0.0f, 10.0f);
+            tarPos = new Vector3(transform.position.x, 0.5f, 10.0f);
             transform.position = Vector3.MoveTowards(transform.position, tarPos, _speed * Time.deltaTime);
         }
+    }
+
+    private void Active()
+    {
+        this.GetComponent<CapsuleCollider>().enabled = true;
+        _animator.SetTrigger("ToAttackers");
+
+    }
+
+    void PickBall(GameObject ball)
+    {
+        if(_hasBall) return;
+        
+        transform.LookAt(Vector3.forward);
+
+        ball.transform.LookAt(Vector3.forward);            
+        ball.transform.SetParent(transform);
+        //ball.transform.position = new Vector3(0, ball.transform.position.y, transform.position.z + 0.5f);
+        ball.transform.position = new Vector3(0.0f, 0.0f, 0.8f);
+        transform.LookAt(GP.Goal.transform);
+
+        _hasBall = true;
+        GP.OnAttackersGetBall();
     }
 }

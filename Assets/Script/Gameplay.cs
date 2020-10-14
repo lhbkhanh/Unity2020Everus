@@ -7,11 +7,11 @@ public class Gameplay : MonoBehaviour
 
     public GameObject EnemypFab, AttackerPfab, BallPfab;
 
-    public GameObject Goal;
+    public GameObject Goal, Ball;
     private List<GameObject> Enemys;
     private List<AttackerBehavior> Attackers;
 
-    private GameObject EnemysGroup, AttackersGroup, Ball;
+    private GameObject EnemysGroup, AttackersGroup;
 
 
     // Start is called before the first frame update
@@ -21,9 +21,8 @@ public class Gameplay : MonoBehaviour
         AttackersGroup = GameObject.Find("AttackersGroup");
         Enemys = new List<GameObject>();
         Attackers = new List<AttackerBehavior>();
-        Vector3 Ballposition = new Vector3(Random.Range(-4.73f, 4.73f), 0, Random.Range(-7.2f, 7.2f));
-        //Ball = Instantiate(BallPfab, Ballposition, Quaternion.identity);
-        Ball = GameObject.Find("Soccer Ball");
+        Vector3 Ballposition = new Vector3(Random.Range(-4.73f, 4.73f), 0.165f, Random.Range(-7.2f, 7.2f));
+        Ball.transform.position = Ballposition;
     }
 
     // Update is called once per frame
@@ -56,7 +55,7 @@ public class Gameplay : MonoBehaviour
                         target = Ball.transform;
                     }
                     AttackerBehavior att = attacker.GetComponent<AttackerBehavior>();
-                    att.Init(this, target);
+                    att.Init(this, target, AttDef.SpawnTime);
                     Attackers.Add(att);
                     //Enemys.Add( Instantiate(AttackerPfab, newpoint, Quaternion.identity, EnemysGroup.transform));
                 }
@@ -98,5 +97,10 @@ public class Gameplay : MonoBehaviour
                 att.SetTarget(Goal.transform);
             }
         }
+    }
+    public void DestroyAttacker(AttackerBehavior att)
+    {
+        Attackers.Remove(att);
+        Destroy(att.gameObject, 0.1f);
     }
 }

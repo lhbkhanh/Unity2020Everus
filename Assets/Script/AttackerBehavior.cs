@@ -14,10 +14,11 @@ public class AttackerBehavior : MonoBehaviour
     // private Area
     ////////////////////
     private Gameplay GP;
-    private float _DeactiveTime, _speed ;
-    private bool _isInit, _hasBall, _isActive;
-    private Transform tfmTarget;
+    private float _DeactiveTime;
+    private bool _isInit, _hasBall, _isActive, _updateAddBall;
+    private Transform trfTarget;
     private Animator _animator;
+    private GameObject ball;
 
 
 
@@ -28,19 +29,18 @@ public class AttackerBehavior : MonoBehaviour
     // Start is called before the first frame update
     private void Awake()
     {
-        _DeactiveTime = _speed = 0.0f;
+        _DeactiveTime = 0.0f;
         _hasBall = false;
         _isInit = false;
         _isActive = false;
+        _updateAddBall = false;
         _animator = GetComponent<Animator>();
-        
-        _speed = AttDef.NormalSpeed; // debug
     }
     
     public void Init(Gameplay gp, Transform target, float timeDeactive)
     {
         GP = gp;
-        this.tfmTarget = target;
+        this.trfTarget = target;
         _isActive = false;
         _DeactiveTime = -timeDeactive;
         this.GetComponent<CapsuleCollider>().enabled = false;
@@ -62,14 +62,22 @@ public class AttackerBehavior : MonoBehaviour
             }
         }
         if(_isActive)
+        {
+            if(_hasBall)
+            {
+                _updateAddBall = false;
+                ball.transform.position = new Vector3(transform.position.x, ball.transform.position.y, transform.position.z + 0.5f);
+            }
             Move();
+        }
     }
 
     public void OnTriggerEnter(Collider other)
     {
         if(other.gameObject.CompareTag("Ball"))
         {
-            PickBall(other.gameObject);
+            ball = other.gameObject;
+            PickBall();
         }
         
     }
@@ -78,7 +86,8 @@ public class AttackerBehavior : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Ball"))
         {
-            PickBall(collision.gameObject);
+            ball = collision.gameObject;
+            PickBall();
         }
 
         if(collision.gameObject.CompareTag("Wall"))
@@ -97,7 +106,7 @@ public class AttackerBehavior : MonoBehaviour
 
     public void SetTarget(Transform target)
     {
-        tfmTarget = target;
+        trfTarget = target;
     }
 
 
@@ -107,17 +116,19 @@ public class AttackerBehavior : MonoBehaviour
     private void Move()
     {
         Vector3 tarPos;
-        if(tfmTarget != null)
+        float speed = AttDef.NormalSpeed;
+        if(trfTarget != null)
         {
-            tarPos = tfmTarget.position;
+            tarPos = trfTarget.position;
             tarPos.y = 0.5f;
-            transform.position = Vector3.MoveTowards(transform.position, tarPos, _speed * Time.deltaTime);
+            if(_hasBall) speed = AttDef.BallSpeed;
+            transform.position = Vector3.MoveTowards(transform.position, tarPos, speed * Time.deltaTime);
 
         }
         else
         {
             tarPos = new Vector3(transform.position.x, 0.5f, 10.0f);
-            transform.position = Vector3.MoveTowards(transform.position, tarPos, _speed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, tarPos, speed * Time.deltaTime);
         }
     }
 
@@ -128,7 +139,7 @@ public class AttackerBehavior : MonoBehaviour
 
     }
 
-    void PickBall(GameObject ball)
+    void PickBall()
     {
         if(_hasBall) return;
         
@@ -136,8 +147,8 @@ public class AttackerBehavior : MonoBehaviour
 
         ball.transform.LookAt(Vector3.forward);            
         ball.transform.SetParent(transform);
-        //ball.transform.position = new Vector3(0, ball.transform.position.y, transform.position.z + 0.5f);
-        ball.transform.position = new Vector3(0.0f, 0.0f, 0.8f);
+        
+        _updateAddBall = true;
         transform.LookAt(GP.Goal.transform);
 
         _hasBall = true;

@@ -6,30 +6,22 @@ public class BallController : MonoBehaviour
 {
     public GameObject target, gold;
 
-    Ray ray ;
+    // private Ray ray ;
 
 
     // Start is called before the first frame update
     void Start()
     {
-       ray = new Ray(target.transform.position, gold.transform.position);
+    //    ray = new Ray(target.transform.position, gold.transform.position);
     }
 
     // Update is called once per frame
     void Update()
     {
-        Vector3 targetDir = gold.transform.position - transform.position;
-        targetDir.y = 0;
-        Vector3 forward = transform.forward;
-        float angle = Vector3.SignedAngle(targetDir, forward, Vector3.up);
-        string mes;
-        if (angle < -5.0F)
-            mes = "turn left";
-        else if (angle > 5.0F)
-            mes = ("turn right");
-        else
-            mes = ("forward");
-       // print("angle: " + angle + " - " + mes);
+        // Vector3 targetDir = gold.transform.position - transform.position;
+        // targetDir.y = 0;
+        // Vector3 forward = transform.forward;
+        // float angle = Vector3.SignedAngle(targetDir, forward, Vector3.up);
         
     }
 }

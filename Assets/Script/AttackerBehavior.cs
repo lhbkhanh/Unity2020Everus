@@ -136,7 +136,6 @@ public class AttackerBehavior : MonoBehaviour
     {
         this.GetComponent<CapsuleCollider>().enabled = true;
         _animator.SetTrigger("ToAttackers");
-
     }
 
     void PickBall()

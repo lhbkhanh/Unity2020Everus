@@ -10,6 +10,6 @@ public class EneDef
     public const float ReactivateTime = 4.0f;
     public const float NormalSpeed = 1.0f;
     public const float ReturnSpeed = 2.0f;
-    public const float Detectionrange = 0.35f;
+    public const float DetectionRange = 0.35f;
 
 }

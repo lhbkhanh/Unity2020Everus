@@ -14,9 +14,11 @@ public class EnergyBar : MonoBehaviour
     private float m_energyAmount, m_energyRegenAmount;
     private int m_points;
 
+
     private void Awake()
     {
         m_energyAmount = 0.0f;
+        m_energyAmount = 3.0f; // debug
         if(isAttacker)
             m_energyRegenAmount = AttDef.EnergyRegen;
         else

@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class EnergyBar : MonoBehaviour
 {
 
+    private Gameplay m_GP;
     //[SerializeField] 
     private Image m_fullImage, m_generationImage;
     [SerializeField] private bool isAttacker;
@@ -18,7 +19,7 @@ public class EnergyBar : MonoBehaviour
     private void Awake()
     {
         m_energyAmount = 0.0f;
-        m_energyAmount = 3.0f; // debug
+        m_energyAmount = 6.0f; // debug-Cheat
         if(isAttacker)
             m_energyRegenAmount = AttDef.EnergyRegen;
         else
@@ -33,12 +34,14 @@ public class EnergyBar : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        m_GP = GameObject.Find("Gameplay").GetComponent<Gameplay>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(m_GP.PauseGame) return;
+
         if(m_points < MAX_POINT)
             m_energyAmount += m_energyRegenAmount * Time.deltaTime;
 

@@ -13,27 +13,25 @@ public class AttackerBehavior : MonoBehaviour
     // private Area
     private Gameplay m_GP;
     private float m_DeactiveTime;
-    private bool m_isInit, m_hasBall, m_isActive, m_updateAddBall;
+    private bool m_isInit, m_hasBall, m_isActive;
     private Transform m_Target, m_ball;
     private Animator m_animator;
 
-    // property
+    /////// property
 //     public string Name
 //   {
 //     get { return name; }   // get method
 //     set { name = value; }  // set method
 //   }
-
-
-    //
-    // Summary:
-    //     Target for Attack
     public Transform Target
     {
-
         set { m_Target = value; }
     }    
-    
+    public bool PlayActive
+    {
+        get { return m_Target;}
+        //set { m_Target = value; }
+    }
 
 
 
@@ -48,7 +46,6 @@ public class AttackerBehavior : MonoBehaviour
         m_hasBall = false;
         m_isInit = false;
         m_isActive = false;
-        m_updateAddBall = false;
         m_animator = GetComponent<Animator>();
     }
     
@@ -67,6 +64,7 @@ public class AttackerBehavior : MonoBehaviour
     void Update()
     {
         if(!m_isInit || m_GP == null) return;
+        if(m_GP.PauseGame) return;
         if(!m_isActive)
         {
             m_DeactiveTime += Time.deltaTime;
@@ -80,7 +78,6 @@ public class AttackerBehavior : MonoBehaviour
         {
             if(m_hasBall)
             {
-                m_updateAddBall = false;
                 m_ball.position = new Vector3(transform.position.x, m_ball.position.y, transform.position.z + 0.5f);
             }
             Move();
@@ -89,20 +86,32 @@ public class AttackerBehavior : MonoBehaviour
 
     public void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.CompareTag("Ball"))
+        if(other.gameObject.CompareTag(GL.TAG_BALL))
         {
-            m_ball = other.gameObject.transform;
-            PickBall();
+            //m_ball = other.gameObject.transform;
+            PickBall(other.gameObject.transform);
+        }
+
+        if(other.gameObject.CompareTag(GL.TAG_GOAL))
+        {
+            if(m_hasBall)
+            {
+                m_GP.GOALLLL();
+            }
+            else
+            {
+                m_GP.DestroyAttacker(this);
+            }
         }
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Ball"))
-        {
-            m_ball = collision.gameObject.transform;
-            PickBall();
-        }
+        // if (collision.gameObject.CompareTag("Ball"))
+        // {
+        //     m_ball = collision.gameObject.transform;
+        //     PickBall();
+        // }
 
         if(collision.gameObject.CompareTag("Wall"))
         {
@@ -136,7 +145,11 @@ public class AttackerBehavior : MonoBehaviour
             tarPos = m_Target.position;
             tarPos.y = 0.5f;
             //speed = AttDef.BallSpeed;
-            if(m_hasBall) speed = AttDef.CarryingSpeed;
+            if(m_hasBall)
+            {
+                speed = AttDef.CarryingSpeed;
+                tarPos.z -= 0.5f;// cheat: goal so big :D                
+            }
             transform.position = Vector3.MoveTowards(transform.position, tarPos, speed * Time.deltaTime);
 
         }
@@ -154,23 +167,29 @@ public class AttackerBehavior : MonoBehaviour
     }
     public void Inactivated()
     {
+        m_hasBall = false;
         m_isActive = false;
+        m_Target = null;
         m_DeactiveTime -= AttDef.ReactivateTime;
         this.GetComponent<CapsuleCollider>().enabled = false;
         m_animator.SetTrigger(GL.ANIM_INACTIVE);
     }
 
-    private void PickBall()
+    public void PickBall(Transform ball)
     {
-        if(m_hasBall) return;
-        if(m_GP.AttackersHasBall()) return;
+        if(m_hasBall)
+        {
+            print("PickBall() return by hasBall");
+            return;
+        }
+        //if(m_GP.AttackersHasBall()) return;
+        m_ball = ball;
         transform.LookAt(Vector3.forward);
-
-        m_ball.LookAt(Vector3.forward);            
+        Vector3 goalPos = m_GP.m_Goal.transform.position;
+        goalPos.y = 0.5f;
+        transform.LookAt(goalPos);
         m_ball.SetParent(transform);
-        
-        m_updateAddBall = true;
-        transform.LookAt(m_GP.m_Goal.transform);
+        m_ball.position = new Vector3(0.0f, m_ball.position.y, 0.9f);
 
         m_hasBall = true;
         m_GP.OnAttackersGetBall();

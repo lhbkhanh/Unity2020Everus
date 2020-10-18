@@ -8,6 +8,7 @@ TagManager:
   - Wall
   - Defender
   - Attacker
+  - Goal
   layers:
   - Default
   - TransparentFX

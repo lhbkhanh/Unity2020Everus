@@ -13,9 +13,10 @@ public class EnemyBehavior : MonoBehaviour
     // private Area
     private Gameplay m_GP;
     private float m_DeactiveTime;
-    private bool m_isInit, m_isActive, m_isChasing;
+    private bool m_isInit, m_isActive, m_isChasing, m_isReturning;
     private Animator m_animator;
     private Transform m_ball;
+    private Vector3 m_initPos;
 
 
     ////////////////////
@@ -28,6 +29,8 @@ public class EnemyBehavior : MonoBehaviour
         m_isInit = false;
         m_isActive = false;
         m_isChasing = false;
+        m_isReturning = false;
+        m_initPos = new Vector3();
         m_animator = GetComponent<Animator>();
     }
     
@@ -37,6 +40,7 @@ public class EnemyBehavior : MonoBehaviour
         m_isActive = false;
         m_DeactiveTime = -timeDeactive;
         m_ball = m_GP.getBallTransform();
+        m_initPos = transform.position;
         this.GetComponent<CapsuleCollider>().enabled = false;
 
         m_isInit = true;
@@ -45,6 +49,7 @@ public class EnemyBehavior : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(m_GP.PauseGame) return;
         if(!m_isInit || m_GP == null) return;
         if(!m_isActive)
         {
@@ -60,10 +65,12 @@ public class EnemyBehavior : MonoBehaviour
         if(!m_isChasing)
         {
             if(!m_GP.AttackersHasBall()) return;
+            if(m_ball == null) return;
 
             Vector3 ballPos = m_ball.position;
             ballPos.y = 0.5f;
             float dist = Vector3.Distance(ballPos, transform.position);
+            //print("m_EnemyDetectRange: " + m_GP.GetEnemyDetectRange());
             if(dist < m_GP.GetEnemyDetectRange())
             {
                 transform.LookAt(ballPos);
@@ -71,7 +78,12 @@ public class EnemyBehavior : MonoBehaviour
             }
         }
 
-        if(m_isActive && m_isChasing)
+        if(m_isReturning && transform.position.Equals(m_initPos))
+        {
+            m_isReturning = false;            
+        }
+
+        if(m_isActive && (m_isChasing || m_isReturning))
         {
             Move();
         }
@@ -82,6 +94,15 @@ public class EnemyBehavior : MonoBehaviour
         if(other.gameObject.CompareTag(GL.TAG_BALL))
         {
             AttackerBehavior att = other.gameObject.GetComponentInParent<AttackerBehavior>();
+           if(att.HasBall())
+           {
+               m_GP.Arrested(this, att);
+           }
+        }
+
+        if(other.gameObject.CompareTag(GL.TAG_ATTACKER))
+        {
+           AttackerBehavior att = other.gameObject.GetComponent<AttackerBehavior>();
            if(att.HasBall())
            {
                m_GP.Arrested(this, att);
@@ -115,11 +136,17 @@ public class EnemyBehavior : MonoBehaviour
     {        
         if(m_isChasing)
         {
+            if(m_ball == null) return;
             Vector3 ballPos = m_ball.position;
             ballPos.y = 0.5f;
             float speed = EneDef.NormalSpeed;
             transform.position = Vector3.MoveTowards(transform.position, ballPos, speed * Time.deltaTime);
         }
+        if(m_isReturning)
+        {            
+            float speed = EneDef.ReturnSpeed;
+            transform.position = Vector3.MoveTowards(transform.position, m_initPos, speed * Time.deltaTime);
+        }      
         
     }
 
@@ -131,9 +158,11 @@ public class EnemyBehavior : MonoBehaviour
     public void Inactivated()
     {
         m_isActive = false;
+        m_isChasing = false;
         m_DeactiveTime -= EneDef.ReactivateTime;
         this.GetComponent<CapsuleCollider>().enabled = false;
         m_animator.SetTrigger(GL.ANIM_INACTIVE);
+        m_isReturning = true;
     }
     private void TouchBall()
     {

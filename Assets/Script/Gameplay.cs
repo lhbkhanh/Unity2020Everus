@@ -21,15 +21,24 @@ public class Gameplay : MonoBehaviour
 
     private float m_timeRemain;
 
+    private bool m_pause;
+
     //// Enenmy
     private float m_EnemyDetectRange;
+
+    /////////////////
+    /////// property
+    public bool PauseGame
+    {
+        get { return m_pause;}
+        //set { m_Target = value; }
+    }      
 
     private void Awake()
     {
         m_Attackers = new List<AttackerBehavior>();
         m_Enemyers = new List<EnemyBehavior>();
         m_timeRemain = 140;
-        
     }
 
     // Start is called before the first frame update
@@ -40,7 +49,7 @@ public class Gameplay : MonoBehaviour
         Vector3 Ballposition = new Vector3(Random.Range(-4.73f, 4.73f), 0.165f, Random.Range(-7.2f, 7.2f));
         m_Ball = Instantiate(m_BallPfab, Ballposition, Quaternion.identity);
 
-        Bounds bounds = m_BattleField.GetComponent<MeshFilter>().mesh.bounds;
+        Bounds bounds = m_BattleField.GetComponent<MeshFilter>().mesh.bounds;       
         m_EnemyDetectRange = bounds.size.x * EneDef.DetectionRange;
 
 
@@ -49,6 +58,7 @@ public class Gameplay : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(m_pause) return;
         RaycastHit outRaycast;
         if (Input.GetMouseButtonDown(0))
         {
@@ -134,7 +144,7 @@ public class Gameplay : MonoBehaviour
         float nearDist = 0.0f;
         foreach (var att in GetAttackers())
         {
-            if(att == attacker) continue;
+            if(att == attacker || att.PlayActive) continue;
             if(near == null)
             {
                 near = att;
@@ -156,7 +166,8 @@ public class Gameplay : MonoBehaviour
         AttackerBehavior near = FindAttackersNear(attKeeper);
         if (near != null)
         {
-            m_Ball.transform.SetParent(near.transform, true);
+            //m_Ball.transform.SetParent(near.transform, false);
+            near.PickBall(m_Ball.transform);
             return true;
         }
         return false;
@@ -174,18 +185,21 @@ public class Gameplay : MonoBehaviour
         else
         {
             attBallKeeper.Inactivated();
-            GameOver();
+            Protected();
         }        
     }
 
-    private void GameOver()
+    public void GOALLLL()
     {
-        print("GameOver!!!");
+        print("GOALLLL!!!");
+        m_pause = true;
     }
 
-    
-
-
+    private void Protected()
+    {
+        print("Protected!!!");
+        m_pause = true;
+    }
 
     private void SpawnAttacker(Vector3 spawnPost)
     {

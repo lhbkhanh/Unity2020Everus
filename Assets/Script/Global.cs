@@ -9,6 +9,7 @@ public static class GL
     public const string TAG_WALL = "Wall";
     public const string TAG_DEFENDER = "Defender";
     public const string TAG_ATTACKER = "Attacker";
+    public const string TAG_GOAL = "Goal";
 
     public const string ANIM_ENEMY 	   = "ToEnemy";
     public const string ANIM_ATTACKERS = "ToAttackers";

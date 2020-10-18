@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class BallController : MonoBehaviour
 {
+    public Gameplay m_GP;
     public GameObject target, gold;
 
     // private Ray ray ;
@@ -23,5 +24,13 @@ public class BallController : MonoBehaviour
         // Vector3 forward = transform.forward;
         // float angle = Vector3.SignedAngle(targetDir, forward, Vector3.up);
         
+    }
+
+     public void OnTriggerEnter(Collider other)
+    {        
+        if(other.gameObject.CompareTag(GL.TAG_GOAL))
+        {
+            m_GP.GOALLLL();
+        }
     }
 }

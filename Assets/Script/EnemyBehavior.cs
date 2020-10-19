@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 public class EnemyBehavior : MonoBehaviour
@@ -8,6 +9,9 @@ public class EnemyBehavior : MonoBehaviour
     ////////////////////
     // public Area
 
+    ////////////////////
+    // SerializeField Area
+    [SerializeField] private GameObject m_Range;
 
     ////////////////////
     // private Area
@@ -87,6 +91,8 @@ public class EnemyBehavior : MonoBehaviour
         {
             Move();
         }
+        print("m_isActive: " + m_isActive + " - m_isChasing: " + m_isChasing + " - m_isReturning: " + m_isReturning);
+       m_Range.SetActive(m_isActive && !m_isChasing && !m_isReturning);
     }
 
     public void OnTriggerEnter(Collider other)

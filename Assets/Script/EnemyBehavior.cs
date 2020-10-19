@@ -65,10 +65,13 @@ public class EnemyBehavior : MonoBehaviour
             }
         }
 
+        if(m_isReturning && transform.position.Equals(m_initPos))
+        {
+            m_isReturning = false;            
+        }
 
         if(!m_isChasing)
-        {
-            if(!m_GP.AttackersHasBall()) return;
+        {           
             if(m_ball == null) return;
 
             Vector3 ballPos = m_ball.position;
@@ -80,12 +83,7 @@ public class EnemyBehavior : MonoBehaviour
                 transform.LookAt(ballPos);
                 m_isChasing = true;
             }
-        }
-
-        if(m_isReturning && transform.position.Equals(m_initPos))
-        {
-            m_isReturning = false;            
-        }
+        }      
 
         if(m_isActive && (m_isChasing || m_isReturning))
         {
@@ -93,13 +91,14 @@ public class EnemyBehavior : MonoBehaviour
         }
 
         m_Range.SetActive(m_isActive && !m_isChasing && !m_isReturning);
-        m_Indicator.SetActive(!m_isActive && m_isChasing && m_isReturning);
+        print("asda: " + (m_isActive && (m_isChasing || m_isReturning)));
+        m_Indicator.SetActive(m_isActive && (m_isChasing || m_isReturning));
     }
 
     public void OnTriggerEnter(Collider other)
     {
         if(m_isReturning) return;
-        
+
         if(other.gameObject.CompareTag(GL.TAG_BALL))
         {
             AttackerBehavior att = other.gameObject.GetComponentInParent<AttackerBehavior>();

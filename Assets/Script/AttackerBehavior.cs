@@ -8,6 +8,10 @@ public class AttackerBehavior : MonoBehaviour
     ////////////////////
     // public Area
 
+    ////////////////////
+    // SerializeField Area
+    [SerializeField] private GameObject m_Indicator;
+
 
     ////////////////////
     // private Area
@@ -82,6 +86,8 @@ public class AttackerBehavior : MonoBehaviour
             }
             Move();
         }
+
+        m_Indicator.SetActive(m_isActive);
     }
 
     public void OnTriggerEnter(Collider other)
@@ -151,12 +157,14 @@ public class AttackerBehavior : MonoBehaviour
                 tarPos.z -= 0.5f;// cheat: goal so big :D                
             }
             transform.position = Vector3.MoveTowards(transform.position, tarPos, speed * Time.deltaTime);
+            transform.LookAt(tarPos);
 
         }
         else
         {
             tarPos = new Vector3(transform.position.x, 0.5f, 10.0f);
             transform.position = Vector3.MoveTowards(transform.position, tarPos, speed * Time.deltaTime);
+            transform.LookAt(tarPos);
         }
     }
 
@@ -187,7 +195,6 @@ public class AttackerBehavior : MonoBehaviour
         transform.LookAt(Vector3.forward);
         Vector3 goalPos = m_GP.m_Goal.transform.position;
         goalPos.y = 0.5f;
-        transform.LookAt(goalPos);
         m_ball.SetParent(transform);
         m_ball.position = new Vector3(0.0f, m_ball.position.y, 0.9f);
 

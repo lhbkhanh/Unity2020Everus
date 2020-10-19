@@ -11,7 +11,7 @@ public class EnemyBehavior : MonoBehaviour
 
     ////////////////////
     // SerializeField Area
-    [SerializeField] private GameObject m_Range;
+    [SerializeField] private GameObject m_Range, m_Indicator;
 
     ////////////////////
     // private Area
@@ -91,8 +91,9 @@ public class EnemyBehavior : MonoBehaviour
         {
             Move();
         }
-        print("m_isActive: " + m_isActive + " - m_isChasing: " + m_isChasing + " - m_isReturning: " + m_isReturning);
-       m_Range.SetActive(m_isActive && !m_isChasing && !m_isReturning);
+        
+        m_Range.SetActive(m_isActive && !m_isChasing && !m_isReturning);
+        m_Indicator.SetActive(m_isActive && m_isChasing && m_isReturning);
     }
 
     public void OnTriggerEnter(Collider other)

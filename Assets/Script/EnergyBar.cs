@@ -19,7 +19,7 @@ public class EnergyBar : MonoBehaviour
     private void Awake()
     {
         m_energyAmount = 0.0f;
-        m_energyAmount = 6.0f; // debug-Cheat
+        //m_energyAmount = 6.0f; // debug-Cheat
         if(isAttacker)
             m_energyRegenAmount = AttDef.EnergyRegen;
         else
@@ -71,5 +71,10 @@ public class EnergyBar : MonoBehaviour
             return true; 
         }
         return false;
+    }
+
+    public void reset()
+    {
+        m_energyAmount=0;
     }
 }

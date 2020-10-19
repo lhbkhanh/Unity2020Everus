@@ -109,6 +109,13 @@ public class AttackerBehavior : MonoBehaviour
                 m_GP.DestroyAttacker(this);
             }
         }
+        if(other.gameObject.CompareTag("Wall"))
+        {
+           if(!m_hasBall)
+           {
+               m_GP.DestroyAttacker(this);
+           }
+        }
     }
 
     void OnCollisionEnter(Collision collision)
@@ -138,6 +145,10 @@ public class AttackerBehavior : MonoBehaviour
     public bool HasBall()
     {
         return m_hasBall;
+    }
+    public void LostBall()
+    {
+        m_hasBall = false;
     }
 
     ////////////////////

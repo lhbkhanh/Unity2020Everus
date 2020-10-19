@@ -91,13 +91,15 @@ public class EnemyBehavior : MonoBehaviour
         {
             Move();
         }
-        
+
         m_Range.SetActive(m_isActive && !m_isChasing && !m_isReturning);
-        m_Indicator.SetActive(m_isActive && m_isChasing && m_isReturning);
+        m_Indicator.SetActive(!m_isActive && m_isChasing && m_isReturning);
     }
 
     public void OnTriggerEnter(Collider other)
     {
+        if(m_isReturning) return;
+        
         if(other.gameObject.CompareTag(GL.TAG_BALL))
         {
             AttackerBehavior att = other.gameObject.GetComponentInParent<AttackerBehavior>();
@@ -121,14 +123,15 @@ public class EnemyBehavior : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        // if(collision.gameObject.CompareTag(GL.TAG_BALL))
-        // {
-        //     AttackerBehavior att = collision.gameObject.GetComponentInParent<AttackerBehavior>();
-        //    if(att.HasBall())
-        //    {
-        //        m_GP.Arrested(this, att);
-        //    }
-        // }
+        if(m_isReturning) return;
+        if(collision.gameObject.CompareTag(GL.TAG_ATTACKER))
+        {
+            AttackerBehavior att = collision.gameObject.GetComponent<AttackerBehavior>();
+            if(att.HasBall())
+            {
+                m_GP.Arrested(this, att);
+            }
+        }
     }
     
     public bool HasBall()
